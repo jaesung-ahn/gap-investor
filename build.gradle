@@ -26,6 +26,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -34,4 +35,12 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	testLogging {
+		showStandardStreams = true
+		exceptionFormat = 'full'
+	}
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
