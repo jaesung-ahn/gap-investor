@@ -40,16 +40,12 @@ public class MolitRealEstateDataAdapter implements RealEstateDataPort {
     }
 
     @Override
-    public List<Property> fetchProperties(String regionCode) {
-        log.info("Fetching real estate data for region: {}", regionCode);
-
-        // Note: Actual API requires date (LAWD_CD + DEAL_YMD)
-        // For MVP, we default to a specific month or handle logic
-        String dealYmd = "202401";
+    public List<Property> fetchProperties(String regionCode, String yearMonth) {
+        log.info("Fetching real estate data for region: {} and date: {}", regionCode, yearMonth);
 
         URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("LAWD_CD", regionCode)
-                .queryParam("DEAL_YMD", dealYmd)
+                .queryParam("DEAL_YMD", yearMonth)
                 .queryParam("serviceKey", serviceKey)
                 .build(true) // encoded=true because serviceKey is already encoded
                 .toUri();
@@ -91,9 +87,9 @@ public class MolitRealEstateDataAdapter implements RealEstateDataPort {
                 item.getFloor());
 
         // Location
-        // Location
-        // TODO: Implement RegionCode mapping to get correct City and District
-        Location location = new Location("Unknown", "Unknown", item.getDong().trim(), item.getRegionCode());
+        String city = RegionCodeMapper.getCity(item.getRegionCode());
+        String district = RegionCodeMapper.getDistrict(item.getRegionCode());
+        Location location = new Location(city, district, item.getDong().trim(), item.getRegionCode());
 
         // Price Parsing (e.g. "50,000" -> 50000)
         long salePrice = parsePrice(item.getDealAmount());

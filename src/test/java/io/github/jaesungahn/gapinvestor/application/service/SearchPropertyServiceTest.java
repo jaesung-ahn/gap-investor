@@ -13,7 +13,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SearchPropertyServiceTest {
@@ -25,26 +28,17 @@ class SearchPropertyServiceTest {
     private SearchPropertyService searchPropertyService;
 
     @Test
-    @DisplayName("지역 코드로 매물을 검색할 수 있어야 한다")
-    void searchProperties() {
-        // given
-        String regionCode = "11110";
-        Property mockProperty = new Property(
-                "1",
-                "Mock Apt",
-                new Location("Seoul", "Jongno-gu", "Sajik-dong", regionCode),
-                10_000,
-                8_000,
-                2020,
-                84.0);
-        given(realEstateDataPort.fetchProperties(regionCode))
-                .willReturn(List.of(mockProperty));
+    void searchProperties_shouldReturnProperties() {
+        // Given
+        Property property = new Property("1", "Test Apt", new Location("Seoul", "Gangnam", "Yeoksam", "11110"), 100000,
+                50000, 2010, 84.0);
+        when(realEstateDataPort.fetchProperties(eq("11110"), anyString())).thenReturn(List.of(property));
 
-        // when
-        List<Property> result = searchPropertyService.searchProperties(regionCode);
+        // When
+        List<Property> result = searchPropertyService.searchProperties("11110");
 
-        // then
+        // Then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("Mock Apt");
+        assertThat(result.get(0).getName()).isEqualTo("Test Apt");
     }
 }

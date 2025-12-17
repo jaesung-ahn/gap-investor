@@ -12,7 +12,7 @@ import java.util.List;
 public class MockRealEstateDataAdapter implements RealEstateDataPort {
 
     @Override
-    public List<Property> fetchProperties(String regionCode) {
+    public List<Property> fetchProperties(String regionCode, String yearMonth) {
         List<Property> properties = new ArrayList<>();
 
         // Dummy Data 1

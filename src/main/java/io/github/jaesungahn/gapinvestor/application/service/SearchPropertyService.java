@@ -18,6 +18,8 @@ public class SearchPropertyService implements SearchPropertyUseCase {
 
     @Override
     public List<Property> searchProperties(String regionCode) {
-        return realEstateDataPort.fetchProperties(regionCode);
+        // TODO: Accept yearMonth from controller or calculate properly
+        String defaultYearMonth = "202401";
+        return realEstateDataPort.fetchProperties(regionCode, defaultYearMonth);
     }
 }

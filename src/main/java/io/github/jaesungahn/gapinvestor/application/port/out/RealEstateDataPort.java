@@ -4,5 +4,5 @@ import io.github.jaesungahn.gapinvestor.domain.property.Property;
 import java.util.List;
 
 public interface RealEstateDataPort {
-    List<Property> fetchProperties(String regionCode);
+    List<Property> fetchProperties(String regionCode, String yearMonth);
 }

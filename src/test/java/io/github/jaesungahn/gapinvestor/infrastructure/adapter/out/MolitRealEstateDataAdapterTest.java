@@ -73,12 +73,12 @@ class MolitRealEstateDataAdapterTest {
         "<numOfRows>10</numOfRows><pageNo>1</pageNo><totalCount>34</totalCount>" +
         "</body></response>";
 
-    mockServer.expect(requestTo(containsString("http://openapi.molit.go.kr")))
+    mockServer.expect(requestTo(containsString("DEAL_YMD=202412")))
         .andRespond(withSuccess(sampleXml.getBytes(java.nio.charset.StandardCharsets.UTF_8),
             new MediaType("application", "xml", java.nio.charset.StandardCharsets.UTF_8)));
 
     // When
-    List<Property> properties = adapter.fetchProperties("11110");
+    List<Property> properties = adapter.fetchProperties("11110", "202412");
 
     // Then
     assertThat(properties).hasSize(1);
@@ -86,6 +86,9 @@ class MolitRealEstateDataAdapterTest {
     assertThat(property.getName()).isEqualTo("광화문풍림스페이스본");
     assertThat(property.getSalePrice()).isEqualTo(82500);
     assertThat(property.getBuildYear()).isEqualTo(2008);
+    // Verified by RegionCodeMapper (11110 -> Seoul, Jongno-gu)
+    assertThat(property.getLocation().getCity()).isEqualTo("Seoul");
+    assertThat(property.getLocation().getDistrict()).isEqualTo("Jongno-gu");
     assertThat(property.getLocation().getDong()).isEqualTo("사직동");
   }
 }
