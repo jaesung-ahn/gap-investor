@@ -1,6 +1,7 @@
 package io.github.jaesungahn.gapinvestor.presentation.controller;
 
 import io.github.jaesungahn.gapinvestor.application.port.in.SearchPropertyUseCase;
+import io.github.jaesungahn.gapinvestor.application.port.in.SortOption;
 import io.github.jaesungahn.gapinvestor.domain.property.Property;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,8 @@ public class PropertyController {
     }
 
     @GetMapping
-    public List<Property> search(@RequestParam(required = false, defaultValue = "11110") String regionCode) {
-        return searchPropertyUseCase.searchProperties(regionCode);
+    public List<Property> getAllProperties(@RequestParam String regionCode,
+            @RequestParam(required = false) SortOption sort) {
+        return searchPropertyUseCase.searchProperties(regionCode, sort);
     }
 }

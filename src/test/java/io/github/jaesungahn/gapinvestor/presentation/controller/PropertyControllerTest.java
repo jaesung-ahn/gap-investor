@@ -21,34 +21,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(PropertyController.class)
 class PropertyControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockBean
-    private SearchPropertyUseCase searchPropertyUseCase;
+        @MockBean
+        private SearchPropertyUseCase searchPropertyUseCase;
 
-    @Test
-    @DisplayName("매물 검색 API 호출 성공")
-    void searchProperties() throws Exception {
-        // given
-        String regionCode = "11110";
-        Property mockProperty = new Property(
-                "1",
-                "Mock Apt",
-                new Location("Seoul", "Jongno-gu", "Sajik-dong", regionCode),
-                10_000,
-                8_000,
-                2020,
-                84.0);
+        @Test
+        @DisplayName("매물 검색 API 호출 성공")
+        void searchProperties() throws Exception {
+                // given
+                String regionCode = "11110";
+                Property mockProperty = new Property(
+                                "1",
+                                "Mock Apt",
+                                new Location("Seoul", "Jongno-gu", "Sajik-dong", regionCode),
+                                10_000,
+                                8_000,
+                                2020,
+                                84.0);
 
-        given(searchPropertyUseCase.searchProperties(regionCode))
-                .willReturn(List.of(mockProperty));
+                given(searchPropertyUseCase.searchProperties("11110", null))
+                                .willReturn(List.of(mockProperty));
 
-        // when & then
-        mockMvc.perform(get("/api/properties")
-                .param("regionCode", regionCode))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name").value("Mock Apt"));
-    }
+                // when & then
+                mockMvc.perform(get("/api/properties")
+                                .param("regionCode", regionCode))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$", hasSize(1)))
+                                .andExpect(jsonPath("$[0].name").value("Mock Apt"));
+        }
 }
