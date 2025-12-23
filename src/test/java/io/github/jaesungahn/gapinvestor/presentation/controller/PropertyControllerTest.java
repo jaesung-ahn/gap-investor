@@ -13,6 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,7 +43,7 @@ class PropertyControllerTest {
                                 2020,
                                 84.0);
 
-                given(searchPropertyUseCase.searchProperties("11110", null))
+                given(searchPropertyUseCase.searchProperties(eq("11110"), any()))
                                 .willReturn(List.of(mockProperty));
 
                 // when & then
