@@ -2,13 +2,11 @@ package io.github.jaesungahn.gapinvestor.application.service;
 
 import io.github.jaesungahn.gapinvestor.infrastructure.adapter.out.persistence.entity.UserEntity;
 import io.github.jaesungahn.gapinvestor.infrastructure.adapter.out.persistence.repository.UserRepository;
-import java.util.Collections;
+import io.github.jaesungahn.gapinvestor.infrastructure.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private UserDetails createUserDetails(UserEntity user) {
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_USER");
-        return new User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections.singleton(grantedAuthority));
+        return UserPrincipal.create(user);
     }
 }

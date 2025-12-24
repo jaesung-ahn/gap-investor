@@ -26,9 +26,9 @@
     - [x] `RealEstateDataPort`의 DB/API 구현체 작성
 
 ## 4. 사용자 기능 (User Features)
-- [ ] **북마크(관심 매물) 기능**
-    - [ ] 북마크 생성/삭제 API
-    - [ ] 내 북마크 리스트 조회 API
+- [x] **북마크(관심 매물) 기능**
+    - [x] 북마크 생성/삭제 API
+    - [x] 내 북마크 리스트 조회 API
 - [x] **사용자 인증/인가 (Authentication & Authorization)** (Required for Bookmark)
     - [x] Spring Security 설정 (CSRF disable, CORS, Session Stateless)
     - [x] JWT Token Provider 구현
