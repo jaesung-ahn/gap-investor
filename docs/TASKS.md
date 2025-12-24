@@ -21,8 +21,8 @@
 
 ## 3. 데이터 연동 (Data Integration)
 - [ ] **실데이터 확보 전략**
-    - [ ] 공공데이터포털(국토부 실거래가) API 연동 또는 CSV 파싱 파이프라인 구축
-    - [ ] H2/MySQL DB 스키마 설계 및 JPA 엔티티 매핑
+    - [x] 공공데이터포털(국토부 실거래가) API 연동 또는 CSV 파싱 파이프라인 구축
+    - [x] H2/MySQL DB 스키마 설계 및 JPA 엔티티 매핑 (`docs/SCHEMA_DESIGN.md`)
     - [x] `RealEstateDataPort`의 DB/API 구현체 작성
 
 ## 4. 사용자 기능 (User Features)
