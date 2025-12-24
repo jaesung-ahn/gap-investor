@@ -6,7 +6,6 @@ import io.github.jaesungahn.gapinvestor.application.port.out.RealEstateDataPort;
 import io.github.jaesungahn.gapinvestor.domain.location.Location;
 import io.github.jaesungahn.gapinvestor.domain.property.Property;
 import io.github.jaesungahn.gapinvestor.infrastructure.adapter.out.dto.MolitAptTradeResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;

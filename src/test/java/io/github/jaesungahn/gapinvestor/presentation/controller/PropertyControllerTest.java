@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.context.annotation.Import;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PropertyController.class)
+@Import(io.github.jaesungahn.gapinvestor.infrastructure.config.SecurityConfig.class)
 class PropertyControllerTest {
 
         @Autowired
@@ -28,6 +30,9 @@ class PropertyControllerTest {
 
         @MockBean
         private SearchPropertyUseCase searchPropertyUseCase;
+
+        @MockBean
+        private io.github.jaesungahn.gapinvestor.infrastructure.security.JwtTokenProvider jwtTokenProvider;
 
         @Test
         @DisplayName("매물 검색 API 호출 성공")

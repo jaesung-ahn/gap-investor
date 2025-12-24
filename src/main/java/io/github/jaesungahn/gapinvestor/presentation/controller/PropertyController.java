@@ -1,7 +1,6 @@
 package io.github.jaesungahn.gapinvestor.presentation.controller;
 
 import io.github.jaesungahn.gapinvestor.application.port.in.SearchPropertyUseCase;
-import io.github.jaesungahn.gapinvestor.application.port.in.SortOption;
 import io.github.jaesungahn.gapinvestor.domain.property.Property;
 import io.github.jaesungahn.gapinvestor.application.port.in.PropertySearchCondition;
 import lombok.RequiredArgsConstructor;

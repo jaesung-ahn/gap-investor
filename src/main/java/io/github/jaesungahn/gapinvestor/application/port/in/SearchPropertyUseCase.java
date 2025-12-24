@@ -1,7 +1,6 @@
 package io.github.jaesungahn.gapinvestor.application.port.in;
 
 import io.github.jaesungahn.gapinvestor.domain.property.Property;
-import io.github.jaesungahn.gapinvestor.application.port.in.PropertySearchCondition;
 import java.util.List;
 
 public interface SearchPropertyUseCase {
