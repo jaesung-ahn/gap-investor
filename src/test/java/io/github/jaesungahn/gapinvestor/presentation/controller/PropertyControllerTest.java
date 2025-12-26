@@ -58,4 +58,29 @@ class PropertyControllerTest {
                                 .andExpect(jsonPath("$", hasSize(1)))
                                 .andExpect(jsonPath("$[0].name").value("Mock Apt"));
         }
+
+        @Test
+        @DisplayName("매물 상세 조회 API 호출 성공")
+        void getProperty() throws Exception {
+                // given
+                String propertyId = "1";
+                String regionCode = "11110";
+                Property mockProperty = new Property(
+                                propertyId,
+                                "Mock Apt",
+                                new Location("Seoul", "Jongno-gu", "Sajik-dong", regionCode),
+                                10_000,
+                                8_000,
+                                2020,
+                                84.0);
+
+                given(searchPropertyUseCase.getProperty(propertyId))
+                                .willReturn(mockProperty);
+
+                // when & then
+                mockMvc.perform(get("/api/properties/{id}", propertyId))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(propertyId))
+                                .andExpect(jsonPath("$.name").value("Mock Apt"));
+        }
 }

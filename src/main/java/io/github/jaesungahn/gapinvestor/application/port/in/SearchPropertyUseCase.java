@@ -5,4 +5,6 @@ import java.util.List;
 
 public interface SearchPropertyUseCase {
     List<Property> searchProperties(String regionCode, PropertySearchCondition condition);
+
+    Property getProperty(String id);
 }

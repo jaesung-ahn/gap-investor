@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/api/properties")
@@ -23,5 +24,10 @@ public class PropertyController {
     public List<Property> getAllProperties(@RequestParam String regionCode,
             @ModelAttribute PropertySearchCondition condition) {
         return searchPropertyUseCase.searchProperties(regionCode, condition);
+    }
+
+    @GetMapping("/{id}")
+    public Property getProperty(@PathVariable String id) {
+        return searchPropertyUseCase.getProperty(id);
     }
 }

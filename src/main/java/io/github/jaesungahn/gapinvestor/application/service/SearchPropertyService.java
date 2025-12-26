@@ -5,6 +5,8 @@ import io.github.jaesungahn.gapinvestor.application.port.in.SearchPropertyUseCas
 import io.github.jaesungahn.gapinvestor.application.port.in.SortOption;
 import io.github.jaesungahn.gapinvestor.application.port.out.RealEstateDataPort;
 import io.github.jaesungahn.gapinvestor.domain.property.Property;
+import io.github.jaesungahn.gapinvestor.infrastructure.adapter.out.persistence.repository.PropertyJpaRepository;
+import io.github.jaesungahn.gapinvestor.infrastructure.mapper.PropertyMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +18,16 @@ import org.springframework.stereotype.Service;
 public class SearchPropertyService implements SearchPropertyUseCase {
 
         private final RealEstateDataPort realEstateDataPort;
+        private final PropertyJpaRepository propertyJpaRepository;
+        private final PropertyMapper propertyMapper;
+
+        @Override
+        public Property getProperty(String id) {
+                return propertyJpaRepository.findById(id)
+                                .map(propertyMapper::toDomain)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Property not found in database: " + id));
+        }
 
         public List<Property> searchProperties(String regionCode, PropertySearchCondition condition) {
                 // TODO: Accept yearMonth from controller or calculate properly

@@ -5,6 +5,10 @@ import io.github.jaesungahn.gapinvestor.application.port.in.SortOption;
 import io.github.jaesungahn.gapinvestor.application.port.out.RealEstateDataPort;
 import io.github.jaesungahn.gapinvestor.domain.location.Location;
 import io.github.jaesungahn.gapinvestor.domain.property.Property;
+import io.github.jaesungahn.gapinvestor.infrastructure.adapter.out.persistence.entity.PropertyEntity;
+import io.github.jaesungahn.gapinvestor.infrastructure.adapter.out.persistence.repository.PropertyJpaRepository;
+import io.github.jaesungahn.gapinvestor.infrastructure.mapper.PropertyMapper;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +28,12 @@ class SearchPropertyServiceTest {
 
         @Mock
         private RealEstateDataPort realEstateDataPort;
+
+        @Mock
+        private PropertyJpaRepository propertyJpaRepository;
+
+        @Mock
+        private PropertyMapper propertyMapper;
 
         @InjectMocks
         private SearchPropertyService searchPropertyService;
@@ -146,5 +156,46 @@ class SearchPropertyServiceTest {
                 // Then
                 assertThat(result).hasSize(1);
                 assertThat(result.get(0)).isEqualTo(p1);
+        }
+
+        @Test
+        @DisplayName("DB에 존재하는 매물을 조회하면 반환한다")
+        void getProperty_shouldReturnProperty_whenExists() {
+                // Given
+                String propertyId = "test-id";
+                PropertyEntity entity = PropertyEntity
+                                .builder()
+                                .id(propertyId)
+                                .apartmentName("Test Apt")
+                                .regionCode("11110")
+                                .dong("Sajik-dong")
+                                .build();
+
+                Property domainProperty = new Property(propertyId, "Test Apt",
+                                new Location("", "", "Sajik-dong", "11110"), 0, 0, 2020, 84.0);
+
+                when(propertyJpaRepository.findById(propertyId)).thenReturn(java.util.Optional.of(entity));
+                when(propertyMapper.toDomain(entity)).thenReturn(domainProperty);
+
+                // When
+                Property result = searchPropertyService.getProperty(propertyId);
+
+                // Then
+                assertThat(result).isNotNull();
+                assertThat(result.getId()).isEqualTo(propertyId);
+                assertThat(result.getName()).isEqualTo("Test Apt");
+        }
+
+        @Test
+        @DisplayName("DB에 존재하지 않는 매물을 조회하면 예외를 던진다")
+        void getProperty_shouldThrowException_whenNotExists() {
+                // Given
+                String propertyId = "unknown-id";
+                when(propertyJpaRepository.findById(propertyId)).thenReturn(java.util.Optional.empty());
+
+                // When & Then
+                org.assertj.core.api.Assertions.assertThatThrownBy(() -> searchPropertyService.getProperty(propertyId))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Property not found");
         }
 }
