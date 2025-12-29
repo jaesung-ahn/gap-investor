@@ -7,6 +7,8 @@ import io.github.jaesungahn.gapinvestor.application.port.out.RealEstateDataPort;
 import io.github.jaesungahn.gapinvestor.domain.property.Property;
 import io.github.jaesungahn.gapinvestor.infrastructure.adapter.out.persistence.repository.PropertyJpaRepository;
 import io.github.jaesungahn.gapinvestor.infrastructure.mapper.PropertyMapper;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,10 +32,15 @@ public class SearchPropertyService implements SearchPropertyUseCase {
         }
 
         public List<Property> searchProperties(String regionCode, PropertySearchCondition condition) {
-                // TODO: Accept yearMonth from controller or calculate properly
-                String defaultYearMonth = "202401";
+                String searchYearMonth;
+                if (condition != null && condition.getYearMonth() != null && !condition.getYearMonth().isEmpty()) {
+                        searchYearMonth = condition.getYearMonth();
+                } else {
+                        searchYearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+                }
+
                 List<Property> properties = new ArrayList<>(
-                                realEstateDataPort.fetchProperties(regionCode, defaultYearMonth));
+                                realEstateDataPort.fetchProperties(regionCode, searchYearMonth));
 
                 // Filtering
                 if (condition != null) {

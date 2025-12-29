@@ -21,6 +21,7 @@ public class PropertySearchCondition {
     private Double minExclusiveArea;
     private Double maxExclusiveArea;
     private Integer minBuildYear;
+    private String yearMonth;
 
     private SortOption sort;
 }

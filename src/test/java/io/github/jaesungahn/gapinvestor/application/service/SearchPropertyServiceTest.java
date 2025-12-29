@@ -198,4 +198,21 @@ class SearchPropertyServiceTest {
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessageContaining("Property not found");
         }
+
+        @Test
+        @DisplayName("조건에 검색 년월이 있으면 해당 년월로 조회한다")
+        void searchProperties_shouldUseYearMonthFromCondition() {
+                // Given
+                String regionCode = "11110";
+                String yearMonth = "202312";
+                PropertySearchCondition condition = PropertySearchCondition.builder()
+                                .yearMonth(yearMonth)
+                                .build();
+
+                // When
+                searchPropertyService.searchProperties(regionCode, condition);
+
+                // Then
+                org.mockito.Mockito.verify(realEstateDataPort).fetchProperties(eq(regionCode), eq(yearMonth));
+        }
 }

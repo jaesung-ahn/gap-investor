@@ -60,6 +60,27 @@ class PropertyControllerTest {
         }
 
         @Test
+        @DisplayName("검색 년월 파라미터 전달 확인")
+        void searchProperties_withYearMonth() throws Exception {
+                // given
+                String regionCode = "11110";
+                String yearMonth = "202312";
+
+                // when
+                mockMvc.perform(get("/api/properties")
+                                .param("regionCode", regionCode)
+                                .param("yearMonth", yearMonth))
+                                .andExpect(status().isOk());
+
+                // then
+                org.mockito.ArgumentCaptor<io.github.jaesungahn.gapinvestor.application.port.in.PropertySearchCondition> captor = org.mockito.ArgumentCaptor
+                                .forClass(io.github.jaesungahn.gapinvestor.application.port.in.PropertySearchCondition.class);
+
+                org.mockito.Mockito.verify(searchPropertyUseCase).searchProperties(eq(regionCode), captor.capture());
+                org.assertj.core.api.Assertions.assertThat(captor.getValue().getYearMonth()).isEqualTo(yearMonth);
+        }
+
+        @Test
         @DisplayName("매물 상세 조회 API 호출 성공")
         void getProperty() throws Exception {
                 // given
