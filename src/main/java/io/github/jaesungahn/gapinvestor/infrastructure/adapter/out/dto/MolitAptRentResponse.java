@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @JacksonXmlRootElement(localName = "response")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MolitAptTradeResponse {
+public class MolitAptRentResponse {
 
     @JacksonXmlProperty(localName = "header")
     private Header header;
@@ -56,8 +56,8 @@ public class MolitAptTradeResponse {
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Item {
-        @JacksonXmlProperty(localName = "거래금액") // 거래금액
-        private String dealAmount;
+        @JacksonXmlProperty(localName = "보증금액") // 보증금액
+        private String depositAmount; // Jeonse Amount
 
         @JacksonXmlProperty(localName = "건축년도") // 건축년도
         private int buildYear;
@@ -89,9 +89,7 @@ public class MolitAptTradeResponse {
         @JacksonXmlProperty(localName = "층") // 층
         private int floor;
 
-        // Note: For actual gap investment, we need both Trade (Sales) and Rent (Jeonse)
-        // data.
-        // This DTO structure matches the "AptTrade" (Sales) API.
-        // We will likely need a similar one for "AptRent" later or reuse/adapt this.
+        @JacksonXmlProperty(localName = "월세금액") // 월세금액
+        private String monthlyRent; // If 0, it's Jeonse
     }
 }

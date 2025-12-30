@@ -1,94 +1,120 @@
 package io.github.jaesungahn.gapinvestor.infrastructure.adapter.out;
 
-import io.github.jaesungahn.gapinvestor.domain.property.Property;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.RestClient;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
+import io.github.jaesungahn.gapinvestor.domain.property.Property;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClient.RequestHeadersUriSpec;
+import org.springframework.web.client.RestClient.RequestHeadersSpec;
+import org.springframework.web.client.RestClient.ResponseSpec;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.net.URI;
+
+@ExtendWith(MockitoExtension.class)
 class MolitRealEstateDataAdapterTest {
 
+  @Mock
+  private RestClient.Builder restClientBuilder;
+
+  @Mock
+  private RestClient restClient;
+
+  @Mock
+  private RequestHeadersUriSpec requestHeadersUriSpec;
+
+  @Mock
+  private RequestHeadersSpec requestHeadersSpec;
+
+  @Mock
+  private ResponseSpec responseSpec;
+
   private MolitRealEstateDataAdapter adapter;
-  private MockRestServiceServer mockServer;
 
   @BeforeEach
   void setUp() {
-    RestClient.Builder builder = RestClient.builder();
-    mockServer = MockRestServiceServer.bindTo(builder).build();
-    adapter = new MolitRealEstateDataAdapter(builder);
+    given(restClientBuilder.build()).willReturn(restClient);
+    adapter = new MolitRealEstateDataAdapter(restClientBuilder);
 
+    // Inject properties
     ReflectionTestUtils.setField(adapter, "serviceKey", "test-key");
-    ReflectionTestUtils.setField(adapter, "baseUrl",
-        "http://openapi.molit.go.kr/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTradeDev");
-  }
-
-  private String k(int... codes) {
-    StringBuilder sb = new StringBuilder();
-    for (int c : codes)
-      sb.append((char) c);
-    return sb.toString();
+    ReflectionTestUtils.setField(adapter, "baseUrl", "http://test-trade.com");
+    ReflectionTestUtils.setField(adapter, "rentUrl", "http://test-rent.com");
   }
 
   @Test
-  void fetchProperties_shouldParseXmlResponseCorrectly() {
+  @DisplayName("매매와 전세 데이터를 가져와서 Gap 가격을 계산한다")
+  void fetchProperties_shouldMergeTradeAndRentData() {
     // Given
-    // Construct strings at runtime to ensure safety against source encoding issues
-    String dealAmount = k(0xAC70, 0xB194, 0xAE08, 0xC561); // 거래금액
-    String buildYear = k(0xAC74, 0xCD95, 0xB144, 0xB3C4); // 건축년도
-    String year = k(0xB144); // 년
-    String dong = k(0xBC95, 0xC815, 0xB3D9); // 법정동
-    String apartment = k(0xC544, 0xD30C, 0xD2B8); // 아파트
-    String month = k(0xC6D4); // 월
-    String day = k(0xC77C); // 일
-    String area = k(0xC804, 0xC6A9, 0xBA74, 0xC801); // 전용면적
-    String jibun = k(0xC9C0, 0xBC88); // 지번
-    String regionCode = k(0xC9C0, 0xC5ED, 0xCF54, 0xB4DC); // 지역코드
-    String floor = k(0xCE35); // 층
+    String tradeXml = "<response><body><items><item>" +
+        "<거래금액>80,000</거래금액><건축년도>2020</건축년도><년>2023</년><법정동>Sajik-dong</법정동>" +
+        "<아파트>Test Apt</아파트><월>12</월><일>1</일><전용면적>84.0</전용면적><지역코드>11110</지역코드><층>5</층>" +
+        "</item></items></body></response>";
 
-    String sampleXml = "<response>" +
-        "<header><resultCode>00</resultCode><resultMsg>NORMAL SERVICE.</resultMsg></header>" +
-        "<body><items><item>" +
-        "<" + dealAmount + ">    82,500</" + dealAmount + ">" +
-        "<" + buildYear + ">2008</" + buildYear + ">" +
-        "<" + year + ">2015</" + year + ">" +
-        "<" + dong + "> 사직동</" + dong + ">" +
-        "<" + apartment + ">광화문풍림스페이스본</" + apartment + ">" +
-        "<" + month + ">12</" + month + ">" +
-        "<" + day + ">10</" + day + ">" +
-        "<" + area + ">94.51</" + area + ">" +
-        "<" + jibun + ">9</" + jibun + ">" +
-        "<" + regionCode + ">11110</" + regionCode + ">" +
-        "<" + floor + ">11</" + floor + ">" +
-        "</item></items>" +
-        "<numOfRows>10</numOfRows><pageNo>1</pageNo><totalCount>34</totalCount>" +
-        "</body></response>";
+    String rentXml = "<response><body><items><item>" +
+        "<보증금액>60,000</보증금액><건축년도>2020</건축년도><년>2023</년><법정동>Sajik-dong</법정동>" +
+        "<아파트>Test Apt</아파트><월>12</월><일>5</일><전용면적>84.0</전용면적><지역코드>11110</지역코드><층>3</층>" +
+        "</item></items></body></response>";
 
-    mockServer.expect(requestTo(containsString("DEAL_YMD=202412")))
-        .andRespond(withSuccess(sampleXml.getBytes(java.nio.charset.StandardCharsets.UTF_8),
-            new MediaType("application", "xml", java.nio.charset.StandardCharsets.UTF_8)));
+    // Mock RestClient chain
+    given(restClient.get()).willReturn(requestHeadersUriSpec);
+    given(requestHeadersUriSpec.uri(any(URI.class))).willReturn(requestHeadersSpec);
+    given(requestHeadersSpec.retrieve()).willReturn(responseSpec);
+
+    // Return trade XML first, then rent XML
+    given(responseSpec.body(byte[].class))
+        .willReturn(tradeXml.getBytes(StandardCharsets.UTF_8))
+        .willReturn(rentXml.getBytes(StandardCharsets.UTF_8));
 
     // When
-    List<Property> properties = adapter.fetchProperties("11110", "202412");
+    List<Property> properties = adapter.fetchProperties("11110", "202312");
 
     // Then
     assertThat(properties).hasSize(1);
     Property property = properties.get(0);
-    assertThat(property.getName()).isEqualTo("광화문풍림스페이스본");
-    assertThat(property.getSalePrice()).isEqualTo(82500);
-    assertThat(property.getBuildYear()).isEqualTo(2008);
-    // Verified by RegionCodeMapper (11110 -> Seoul, Jongno-gu)
-    assertThat(property.getLocation().getCity()).isEqualTo("Seoul");
-    assertThat(property.getLocation().getDistrict()).isEqualTo("Jongno-gu");
-    assertThat(property.getLocation().getDong()).isEqualTo("사직동");
+
+    assertThat(property.getName()).isEqualTo("Test Apt");
+    assertThat(property.getSalePrice()).isEqualTo(80000);
+    assertThat(property.getJeonsePrice()).isEqualTo(60000);
+    assertThat(property.getGap().getValue()).isEqualTo(20000); // 80000 - 60000
+  }
+
+  @Test
+  @DisplayName("전세 데이터가 없으면 전세가는 0이다")
+  void fetchProperties_shouldHaveZeroJeonse_whenNoRentData() {
+    // Given
+    String tradeXml = "<response><body><items><item>" +
+        "<거래금액>80,000</거래금액><건축년도>2020</건축년도><년>2023</년><법정동>Sajik-dong</법정동>" +
+        "<아파트>Test Apt</아파트><월>12</월><일>1</일><전용면적>84.0</전용면적><지역코드>11110</지역코드><층>5</층>" +
+        "</item></items></body></response>";
+
+    String rentXml = "<response><body><items></items></body></response>"; // Empty rent
+
+    // Mock RestClient chain
+    given(restClient.get()).willReturn(requestHeadersUriSpec);
+    given(requestHeadersUriSpec.uri(any(URI.class))).willReturn(requestHeadersSpec);
+    given(requestHeadersSpec.retrieve()).willReturn(responseSpec);
+
+    given(responseSpec.body(byte[].class))
+        .willReturn(tradeXml.getBytes(StandardCharsets.UTF_8))
+        .willReturn(rentXml.getBytes(StandardCharsets.UTF_8));
+
+    // When
+    List<Property> properties = adapter.fetchProperties("11110", "202312");
+
+    // Then
+    assertThat(properties).hasSize(1);
+    assertThat(properties.get(0).getJeonsePrice()).isEqualTo(0);
+    assertThat(properties.get(0).getGap().getValue()).isEqualTo(80000); // 80000 - 0
   }
 }
